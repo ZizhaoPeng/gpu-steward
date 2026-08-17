@@ -16,5 +16,5 @@
 - tests/
 - README.md
 - pyproject.toml
-验证摘要：25 项测试在 Python 3.9/3.10/3.11/3.13/3.14 通过；Python 3.8.10 NVIDIA 实机 wheel smoke 通过
+验证摘要：27 项测试在 Python 3.9/3.10/3.11/3.13/3.14 通过；Python 3.8.10 NVIDIA 实机 wheel smoke 通过
 已知发布限制：当前 GitHub 凭据缺少 workflow scope，主分支暂未启用 GitHub Actions

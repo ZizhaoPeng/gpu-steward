@@ -36,6 +36,18 @@ class SchedulerTests(unittest.TestCase):
             self._pairs(result),
         )
 
+    def test_single_waiter_takes_all_three_released_gpus(self):
+        result = plan_allocations(
+            free_gpu_ids=GPUS[:3],
+            waiting=[Request("only-waiter")],
+            total_gpus=4,
+            active_jobs=1,
+        )
+        self.assertEqual(
+            [("only-waiter", ("GPU-0", "GPU-1", "GPU-2"))],
+            self._pairs(result),
+        )
+
     def test_one_released_gpu_starts_only_oldest(self):
         result = plan_allocations(
             free_gpu_ids=("GPU-2",),
