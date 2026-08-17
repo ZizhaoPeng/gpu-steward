@@ -217,8 +217,8 @@ class Coordinator:
         command. Signal exits are normalized to ``128 + signum`` so the CLI
         does not expose Python's negative ``Popen.returncode`` convention. A
         coordinator/inventory error raises an expected Steward exception and
-        leaves the task queued for a later invocation rather than guessing at
-        GPU availability.
+        cancels this invocation's unclaimed request instead of leaving an
+        orphan queue entry or guessing at GPU availability.
         """
 
         task_id = ""

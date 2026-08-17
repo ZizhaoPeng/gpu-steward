@@ -11,9 +11,9 @@ GPU Steward 面向通过 SSH 使用一台多卡 Linux/NVIDIA 服务器的多个 
 
 ## 2. 已核验环境
 
-- AI3 当前是 Linux x86_64，Python 3.8.10，支持用户级 systemd。
+- 实机验证服务器是 Linux x86_64，Python 3.8.10，支持用户级 systemd。
 - `nvidia-smi` 当前发现 4 张 RTX 4090，每张约 24 GiB。
-- 检查时 GPU 1 和 GPU 3 各有一个当前用户的训练进程；GPU 0 和 GPU 2 空闲。这验证了“外部进程感知”是必要功能。
+- 检查时两张 GPU 有当前用户的训练进程、另两张空闲。这验证了“外部进程感知”是必要功能。
 - 4 张卡之间没有 NVLink；因此首版不应假设连续编号优于其他组合，但应保留拓扑评分接口。
 
 环境状态随时会变化。上述数据只用于验证设计，不写入默认配置。
@@ -128,7 +128,7 @@ gpu-steward gc
 6. 并发入队/释放不会产生重复 UUID 租约。
 7. 命令实际收到正确的 `CUDA_VISIBLE_DEVICES` 和计数环境变量；退出后资源释放。
 8. `status --json` 通过 schema 测试，陈旧租约可恢复。
-9. AI3 上完成只读 doctor/inventory 和不占 GPU 的调度 smoke；不得干扰现有训练。
+9. NVIDIA Linux 实机上完成只读 doctor/inventory 和不占 GPU 的调度 smoke；不得干扰现有训练。
 
 ## 9. 暂定选择与待反馈项
 

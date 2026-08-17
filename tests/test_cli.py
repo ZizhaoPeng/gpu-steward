@@ -94,6 +94,29 @@ class CLITests(unittest.TestCase):
             self.assertEqual(1, payload["schema_version"])
             self.assertEqual("InventoryError", payload["error"]["type"])
 
+    def test_invalid_gpu_request_returns_json_without_traceback(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.make_fake_nvidia_smi(directory)
+            result = self.run_cli(
+                directory,
+                "--db",
+                os.path.join(directory, "state.sqlite3"),
+                "run",
+                "--json",
+                "--min",
+                "0",
+                "--",
+                sys.executable,
+                "-c",
+                "pass",
+            )
+            self.assertEqual(2, result.returncode)
+            self.assertNotIn("Traceback", result.stderr)
+            payload = json.loads(result.stderr)
+            self.assertFalse(payload["ok"])
+            self.assertEqual(1, payload["schema_version"])
+            self.assertEqual("QueueError", payload["error"]["type"])
+
 
 if __name__ == "__main__":
     unittest.main()

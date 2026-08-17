@@ -286,6 +286,11 @@ fairness, maximums, and external-busy capacity. A real host verification must
 also run `gpu-steward doctor` and a read-only `inventory --json`; do not use a
 live training process as a smoke test when other work is on the server.
 
+The v0.1 release was also smoke-tested from its wheel on Linux/Python 3.8.10
+against a four-GPU NVIDIA host while two GPUs had external training processes.
+`doctor`, `inventory`, `status`, a CPU-only supervised command, environment
+binding, and final lease release all passed without signalling those occupants.
+
 ## References
 
 The design follows the resource-discovery and device-binding ideas in the
