@@ -1,0 +1,17 @@
+更新时间：2026-08-17
+项目：GPU Steward
+当前阶段：MVP 完成，本地验证通过，待首次 GitHub 发布
+正在推进：收尾发布链路，整理首个公开版本的仓库状态与远端仓库
+下一步：创建初始 commit，建立 GitHub 公有仓库并推送 main
+关键约束：
+- 单服务器、单 Unix 用户、NVIDIA 整卡独占为 v1 范围
+- GPU 数量必须动态查询，不硬编码 4
+- 外部计算进程占用的 GPU fail closed，绝不终止未知进程
+- 空闲 4 卡时首任务 3 卡、第二任务 1 卡；释放批次按等待任务公平分配
+- 已启动任务不动态改变 GPU 数量
+- Python 3.8+，优先标准库，无 root/容器/Slurm 依赖
+权威证据入口：
+- docs/research-and-design.zh-CN.md
+- tests/
+- README.md
+- pyproject.toml

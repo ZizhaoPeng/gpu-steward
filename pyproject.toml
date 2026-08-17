@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gpu-steward"
+version = "0.1.0"
+description = "A lightweight GPU queue for SSH-based AI coding sessions"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "Apache-2.0" }
+authors = [{ name = "GPU Steward contributors" }]
+keywords = ["gpu", "scheduler", "ssh", "codex", "cuda"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Topic :: System :: Distributed Computing",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/ZizhaoPeng/gpu-steward"
+Repository = "https://github.com/ZizhaoPeng/gpu-steward"
+Issues = "https://github.com/ZizhaoPeng/gpu-steward/issues"
+
+[project.scripts]
+gpu-steward = "gpu_steward.cli:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
