@@ -35,3 +35,6 @@ package-dir = { "" = "src" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+gpu_steward = ["timeline/assets/*.html", "timeline/assets/*.css", "timeline/assets/*.js"]

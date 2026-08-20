@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark light">
+    <title>GPU Steward · Timeline</title>
+    <link rel="stylesheet" href="/assets/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="masthead">
+        <div>
+          <p class="eyebrow">GPU STEWARD / OBSERVE PLANE</p>
+          <h1>Timeline</h1>
+          <p class="lede">本机 Codex 工作阶段与 GPU 占用概览；相同任务自动合成长条。</p>
+        </div>
+        <form id="date-form" class="date-form" autocomplete="off">
+          <label for="report-date">自然日</label>
+          <div class="date-controls">
+            <input id="report-date" name="date" type="date" required>
+            <button type="submit">加载</button>
+          </div>
+        </form>
+      </header>
+
+      <section id="summary" class="summary" aria-label="日报摘要">
+        <div class="summary-card"><span>Codex 主动</span><strong data-summary="codex_active_seconds">—</strong></div>
+        <div class="summary-card"><span>Codex 等待</span><strong data-summary="codex_waiting_seconds">—</strong></div>
+        <div class="summary-card"><span>Codex 停滞</span><strong data-summary="codex_stalled_seconds">—</strong></div>
+        <div class="summary-card"><span>GPU 训练</span><strong data-summary="gpu_training_seconds">—</strong></div>
+        <div class="summary-card"><span>GPU 空闲</span><strong data-summary="gpu_idle_seconds">—</strong></div>
+        <div class="summary-card"><span>同时运行</span><strong data-summary="overlap_seconds">—</strong></div>
+      </section>
+
+      <section class="timeline-panel" aria-labelledby="timeline-heading">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">DAILY SWIMLANES</p>
+            <h2 id="timeline-heading">并行活动</h2>
+          </div>
+          <span id="report-meta" class="report-meta">等待日报…</span>
+        </div>
+        <div id="timeline" class="timeline" aria-live="polite">
+          <div class="loading">正在读取本机日报…</div>
+        </div>
+      </section>
+
+      <aside id="detail" class="detail" aria-live="polite" aria-label="活动详情">
+        <div class="detail-empty">点击长条查看任务、实际观察时长和被折叠的短暂间隙。</div>
+      </aside>
+      <p id="error" class="error" role="alert" hidden></p>
+    </main>
+    <script src="/assets/app.js" defer></script>
+  </body>
+</html>

@@ -9,6 +9,10 @@ from typing import Optional, Sequence
 from .errors import CommandError, StewardError
 from .runtime import Coordinator
 from .state import SCHEMA_VERSION, StateStore
+from .timeline.cli import TimelineCLIError, add_parser as add_timeline_parser, dispatch as dispatch_timeline
+from .timeline.config import TimelineConfigError
+from .timeline.launchd import LaunchAgentError
+from .timeline.store import TimelineError
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -43,6 +47,7 @@ def _build_parser() -> argparse.ArgumentParser:
     run.add_argument("--cwd", default=None)
     run.add_argument("--wait-timeout", type=float, default=None)
     run.add_argument("command_argv", nargs=argparse.REMAINDER)
+    add_timeline_parser(sub)
     return parser
 
 
@@ -74,6 +79,15 @@ def _error_payload(exc: Exception):
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
+    if args.command == "timeline":
+        try:
+            return dispatch_timeline(args)
+        except (TimelineCLIError, TimelineConfigError, TimelineError, LaunchAgentError) as exc:
+            _emit(_error_payload(exc), sys.stderr)
+            return 2
+        except KeyboardInterrupt:
+            _emit(_error_payload(CommandError("interrupted")), sys.stderr)
+            return 130
     if args.reserve < 0:
         parser.error("--reserve cannot be negative")
     db_path = getattr(args, "sub_db", None) or args.db

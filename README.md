@@ -98,6 +98,71 @@ The package has no runtime dependency beyond the Python standard library in
 the v0.1 design. A virtual environment is recommended so that unrelated
 projects do not share the installation.
 
+## Observe Plane timeline
+
+The queue scheduler remains the Control Plane. An optional local Observe Plane
+records sanitized Codex lifecycle metadata and read-only GPU state into a
+separate SQLite database, then renders a daily horizontal swimlane dashboard.
+
+- Codex work is split into frozen labels such as `research`, `review`,
+  `analysis`, `implement`, `test`, `operate`, `waiting-tool`, and
+  `suspected-stall`.
+- GPU observations are read-only and classify each card as `training`,
+  `managed-other`, `external`, `reserved`, `idle`, `disabled`, or `unknown`.
+- No prompt, response, command argv, environment variable, credential, or
+  training log is persisted.
+- Collection is model-free: active GPUs are sampled once per minute, a fully
+  idle/disabled host relaxes to once per five minutes, and each probe pass is
+  committed in one SQLite transaction. Hook success and failure are silent so
+  observability never adds text to the model context.
+- Semantic phase commands are deliberately sparse: lifecycle hooks are the
+  default signal, and an agent declares only a changed coarse phase rather
+  than emitting one command per tool.
+- The dashboard binds only to `127.0.0.1` and serves local static assets from
+  the package.
+- Repeated samples from the same GPU task are rendered as one readable bar.
+  Short `idle`/`unknown` blips of at most ten minutes are folded only in the
+  display; raw rows and summary totals remain unchanged, and the detail panel
+  reports the folded gap count and duration.
+
+For the current frozen product boundary, see
+[timeline observability design](docs/timeline-observability-design.zh-CN.md).
+
+### Observe Plane quick start
+
+From this checkout on the local Codex machine:
+
+```bash
+python3 scripts/bootstrap_timeline_local.py \
+  --host AI3 \
+  --project My_Paper_3rd \
+  --disabled-gpu 2 \
+  --force
+```
+
+That helper will:
+
+- write `~/.gpu-steward/timeline.json`;
+- link `integrations/codex/gpu-steward-timeline/` into the default personal
+  Codex marketplace and run `codex plugin add gpu-steward-timeline@personal`;
+- install separate macOS user LaunchAgents for the collector and localhost
+  dashboard. Both start at login and are independently removable.
+
+After bootstrap, the common local commands are:
+
+```bash
+env PYTHONPATH=src python3 -m gpu_steward.cli timeline sample --config ~/.gpu-steward/timeline.json --json
+env PYTHONPATH=src python3 -m gpu_steward.cli timeline report --config ~/.gpu-steward/timeline.json --date 2026-08-18
+gpu-steward timeline open
+```
+
+`timeline open` verifies the versioned local health endpoint, starts or
+repairs the persistent dashboard service when necessary, and opens the default
+browser. The user does not need to remember or copy a localhost URL.
+
+Use a new Codex thread after plugin installation so the updated plugin skills
+and hooks are picked up cleanly.
+
 ## SSH usage
 
 The queue is remote state. Connect to the same host and Unix account for every
@@ -143,6 +208,16 @@ gpu-steward [--db PATH] [--reserve COUNT] [--strict-fifo] run \
   [--cwd PATH] [--wait-timeout SECONDS] -- COMMAND [ARG ...]
 gpu-steward [--db PATH] cancel TASK_ID [--json]
 gpu-steward [--db PATH] gc [--json]
+gpu-steward timeline init --config PATH --host AI3 [--project NAME] [--disabled-gpu INDEX]
+gpu-steward timeline hook [--timeline-db PATH]
+gpu-steward timeline phase PHASE [--timeline-db PATH] [--project NAME]
+gpu-steward timeline sample --config PATH [--json]
+gpu-steward timeline collect-loop --config PATH
+gpu-steward timeline report --config PATH --date YYYY-MM-DD [--format json|csv] [--output PATH]
+gpu-steward timeline serve --config PATH [--port 8765]
+gpu-steward timeline open [--config PATH]
+gpu-steward timeline dashboard install|start|stop|status|uninstall --config PATH
+gpu-steward timeline collector install|start|stop|status|uninstall --config PATH
 ```
 
 - `doctor` checks the local prerequisites and reports actionable failures.

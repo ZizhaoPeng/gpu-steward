@@ -1,20 +1,33 @@
-更新时间：2026-08-18
+更新时间：2026-08-20
 项目：GPU Steward
-当前阶段：v0.1 MVP 已发布到 GitHub public main
-正在推进：稳定性观察与真实 Codex/SSH 工作流试用
-下一步：根据试用决定是否加入持久 daemon、多用户 ACL、priority aging 和多主机调度
+当前阶段：Observe Plane 易读长条、常驻采集与免记地址入口已完成验收
+正在推进：本机 collector 与 Dashboard 由独立用户级 LaunchAgent 持续运行
+下一步：继续无模型调用地积累日报；后续实现原始事件90天安全清理与长期日报汇总
 关键约束：
-- 单服务器、单 Unix 用户、NVIDIA 整卡独占为 v1 范围
-- GPU 数量必须动态查询，不硬编码 4
-- 外部计算进程占用的 GPU fail closed，绝不终止未知进程
-- 空闲 4 卡时首任务 3 卡、第二任务 1 卡；释放批次按等待任务公平分配
-- 已启动任务不动态改变 GPU 数量
-- Python 3.8+，优先标准库，无 root/容器/Slurm 依赖
+- 调度与时间线分库：队列状态继续留在 `state.py`/Control Plane，timeline 使用独立私有 SQLite
+- 只观察，不改训练：不得启动、修改、抢占或终止 `My_Paper_3rd`/AI3 上的训练进程
+- 不存 prompt/response/argv/env/凭据/训练日志；仅保留白名单元数据
+- Codex 阶段词表冻结：research/review/analysis/implement/test/operate/active-unspecified/waiting-tool/waiting-user/suspected-stall/idle
+- GPU 状态冻结：training/managed-other/external/reserved/idle/disabled/unknown
+- dashboard 仅绑定 `127.0.0.1`；collector 仅本地 launchd；默认本地日界为 Asia/Singapore
+- Dashboard 与 collector 分别由用户级 LaunchAgent 常驻；timeline open 校验版本化健康端点后打开浏览器
+- 展示层合并不改原始样本/统计；同GPU同任务短 idle/unknown ≤10分钟折叠并保留 gap_count/gap_seconds
+- 零模型调用；GPU 活跃60秒、全 idle/disabled 300秒、失败1/2/5/10分钟退避；单批次单事务；Hook 无输出且不创建第二子进程
+- Python 3.8+、优先标准库；远端采样只允许 argv 形式调用 `ssh`/`nvidia-smi`
 权威证据入口：
-- https://github.com/ZizhaoPeng/gpu-steward
-- docs/research-and-design.zh-CN.md
-- tests/
 - README.md
-- pyproject.toml
-验证摘要：27 项测试在 Python 3.9/3.10/3.11/3.13/3.14 通过；Python 3.8.10 NVIDIA 实机 wheel smoke 通过
-已知发布限制：当前 GitHub 凭据缺少 workflow scope，主分支暂未启用 GitHub Actions
+- docs/timeline-observability-design.zh-CN.md
+- src/gpu_steward/timeline/
+- integrations/codex/gpu-steward-timeline/
+- scripts/bootstrap_timeline_local.py
+- tests/test_timeline_*.py
+验证摘要：
+- 全量91项测试、Python编译、插件/skill校验及交接独立复核通过
+- 安装态 timeline open 与健康端点通过；两个 LaunchAgent 均由 launchd 托管且空闲采样时CPU为0.0%
+- Playwright 实测375/768/1440宽度：HTTP 200、请求/控制台错误0、页面级溢出0、日期重载和长条详情通过
+- 2026-08-20安装态快照：GPU0 451采样→6条，GPU1 465→3，GPU2 459→13，GPU3 451→4（采集持续增长）
+- 原有低资源边界保持：Background + LowPriorityIO，零模型调用，自适应采样与单批次事务
+已知风险：
+- 插件更新后需在新 Codex task 中加载最新 skill/cache
+- 原始数据90天清理/长期汇总尚未实现；当前SQLite只追加
+- AI3 GPU/占用状态会变化，任何结论以当次只读采样为准
